@@ -806,16 +806,17 @@ DA_fit_core_LOCOM <- function(features, metadata, expVar, coVars = NULL, ...) {
   otu <- as.matrix(features)
   Y <- metadata[[expVar]]
   if (is.factor(Y)) Y <- as.numeric(Y) - 1
+  locom2 <- LOCOM2::locom2
+  # LOCOM2 1.1 replaced the separate OTU and trait inputs with a formula.
+  input <- if ("formula" %in% names(formals(locom2))) {
+    list(formula = otu ~ Y)
+  } else {
+    list(otu.table = otu, Y = Y)
+  }
   fit <- do.call(
-    LOCOM2::locom2,
+    locom2,
     merge_method_args(
-      list(
-        otu.table = otu,
-        Y = Y,
-        seed = 1234,
-        filter = FALSE,
-        verbose = FALSE
-      ),
+      c(input, list(seed = 1234, filter = FALSE, verbose = FALSE)),
       list(...)
     )
   )
